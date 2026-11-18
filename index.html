@@ -1,0 +1,847 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Revisão JS — Prova Front-End</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+<style>
+:root{--bg:#f3efe6;--surface:#fbf9f4;--ink:#1d1b17;--muted:#6f695e;--line:#e0d9ca;--accent:#e4572e;--soft:#fbe3d9;--ok:#1d8a5a;--bad:#cf3b35;--code:#1f1d1a;--code-ink:#ece6d8;--code-muted:#7d7668;--code-line:#2e2b26}
+body.dark{--bg:#12110f;--surface:#1a1916;--ink:#ece6da;--muted:#9a9386;--line:#2d2a25;--accent:#ff7a4d;--soft:#33221a;--ok:#3cc187;--bad:#ff6b62;--code:#0b0a09;--code-line:#211f1b}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 'Bricolage Grotesque',system-ui,sans-serif;transition:background .35s,color .35s;overflow-x:hidden}
+code,pre,.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+code.i{background:var(--soft);padding:1px 5px;border-radius:4px;font-size:.86em;white-space:nowrap}
+b{font-weight:700}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* topo */
+.top{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.top .in{max-width:780px;margin:auto;display:flex;align-items:center;gap:10px;padding:9px 16px}
+.brand{font-weight:800;letter-spacing:-.03em;white-space:nowrap;font-size:17px}
+.brand b{color:var(--accent)}
+nav{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0}
+nav::-webkit-scrollbar{display:none}
+nav a{font:600 12.5px 'JetBrains Mono',monospace;color:var(--muted);text-decoration:none;padding:6px 9px;border-radius:999px;white-space:nowrap;transition:background .2s,color .2s}
+nav a.on{background:var(--ink);color:var(--bg)}
+.prog{height:2px;background:var(--accent);transform-origin:left;transform:scaleX(0)}
+
+/* switch */
+.sw{width:52px;height:28px;border-radius:99px;border:1.5px solid var(--line);background:var(--surface);position:relative;cursor:pointer;flex:none;padding:0}
+.sw::after{content:'';position:absolute;top:3px;left:3px;width:19px;height:19px;border-radius:50%;background:var(--accent);transition:transform .45s cubic-bezier(.5,1.7,.4,1),box-shadow .45s}
+.sw[aria-checked=true]::after{transform:translateX(23px);box-shadow:inset -6px -3px 0 0 var(--surface)}
+.sw:focus-visible,.btn:focus-visible,.tab:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+main{max-width:780px;margin:auto;padding:0 16px 60px}
+.hero{padding:44px 0 10px}
+.hero h1{font-size:clamp(36px,9vw,60px);line-height:.98;letter-spacing:-.04em;margin:0 0 14px;font-weight:800}
+.hero h1 em{font-style:normal;color:var(--accent)}
+.hero p{color:var(--muted);margin:0;max-width:44ch;font-size:17px}
+
+/* lição */
+.lesson{padding-top:44px;scroll-margin-top:52px}
+.lh{display:flex;align-items:baseline;gap:12px;border-bottom:2px solid var(--ink);padding-bottom:10px}
+.lh .n{font:700 14px 'JetBrains Mono',monospace;color:var(--accent)}
+.lh h2{margin:0;font-size:clamp(25px,5.5vw,34px);letter-spacing:-.03em;line-height:1.1;flex:1}
+.lh .t{font:12px 'JetBrains Mono',monospace;color:var(--muted);white-space:nowrap}
+.steps{list-style:none;margin:0;padding:0;counter-reset:s}
+.step{position:relative;padding:20px 0 14px 40px;counter-increment:s;min-width:0}
+.step::before{content:counter(s);position:absolute;left:0;top:20px;width:26px;height:26px;border-radius:50%;border:1.5px solid var(--ink);display:grid;place-items:center;font:700 12px 'JetBrains Mono',monospace;background:var(--bg)}
+.step::after{content:'';position:absolute;left:12.5px;top:50px;bottom:-4px;width:1.5px;background:var(--line)}
+.step:last-child::after{display:none}
+.k{font:700 11px 'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin:5px 0 10px}
+.step p{margin:0 0 10px}
+.lead{font-size:18px;line-height:1.45}
+.lead b{color:var(--accent)}
+
+.defs{display:grid;grid-template-columns:auto 1fr;gap:7px 14px;margin:6px 0 12px;font-size:15px;align-items:baseline}
+.defs dt{font:13px 'JetBrains Mono',monospace;color:var(--accent);white-space:nowrap}
+.defs dd{margin:0;color:var(--muted)}
+@media (max-width:560px){.defs{grid-template-columns:1fr;gap:0}.defs dd{margin-bottom:8px}}
+
+details{margin:8px 0}
+details summary{cursor:pointer;font-weight:600;color:var(--accent);list-style:none;display:inline-flex;gap:6px;align-items:center;font-size:15px}
+details summary::-webkit-details-marker{display:none}
+details summary::before{content:'+';font:700 14px 'JetBrains Mono',monospace;width:18px;height:18px;border:1.5px solid currentColor;border-radius:5px;display:grid;place-items:center;transition:transform .25s}
+details[open] summary::before{content:'−'}
+details .dd{padding:8px 0 0 24px;font-size:15px;color:var(--muted)}
+details .dd p{margin:0 0 6px}
+
+/* pipeline */
+.pipe{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font:13px 'JetBrains Mono',monospace;margin:4px 0 12px}
+.pipe span{padding:5px 9px;border-radius:8px;background:var(--surface);border:1.5px solid var(--line)}
+.pipe span.fn{border-style:dashed;color:var(--accent);border-color:var(--accent)}
+.pipe i{font-style:normal;color:var(--muted)}
+.pipe span.lit{border-color:var(--accent);color:var(--accent)}
+
+.rx{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:0 0 10px}
+.rx div{background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;font-size:13.5px;color:var(--muted);line-height:1.3}
+.rx code{display:block;font-size:17px;font-weight:700;color:var(--ink);margin-bottom:2px}
+@media (max-width:560px){.rx{grid-template-columns:1fr 1fr}}
+
+/* código explicado */
+.code{background:var(--code);color:var(--code-ink);border-radius:12px;overflow:hidden;font:13.5px/1.75 'JetBrains Mono',monospace;margin:4px 0 10px}
+.code .hd{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 10px 7px 14px;border-bottom:1px solid var(--code-line);font-size:12px;color:var(--code-muted)}
+.code ol{margin:0;padding:8px 0;list-style:none;counter-reset:ln;overflow-x:auto}
+.code li{counter-increment:ln;cursor:pointer;padding-right:14px;min-width:max-content;transition:background .2s}
+.code li .c{white-space:pre}
+.code li::before{content:counter(ln);display:inline-block;width:34px;text-align:right;padding-right:12px;color:var(--code-muted)}
+.code li:hover{background:var(--code-line)}
+.code li.on{background:var(--code-line);box-shadow:inset 3px 0 var(--accent)}
+.code li .x{display:none}
+.code.all li .x{display:block;width:min(56ch,calc(100vw - 120px));white-space:normal;color:#e8b48c;font:13px/1.4 'Bricolage Grotesque',sans-serif;padding:0 0 7px 46px}
+.code.all .why{display:none}
+.why{padding:11px 14px;border-top:1px solid var(--code-line);font:14.5px/1.45 'Bricolage Grotesque',sans-serif;display:flex;gap:10px;min-height:48px}
+.why b{color:var(--accent);font:700 12px 'JetBrains Mono',monospace;padding-top:3px;white-space:nowrap}
+pre.code{padding:12px 14px;margin:4px 0 10px;overflow-x:auto;white-space:pre}
+.mini{background:none;border:1px solid #3d3a33;color:var(--code-ink);border-radius:99px;padding:3px 10px;font:12px 'JetBrains Mono',monospace;cursor:pointer;white-space:nowrap}
+.mini:hover{border-color:var(--accent)}
+.t-k{color:#ff9e6b;font-style:normal}.t-s{color:#b8d97c;font-style:normal}.t-r{color:#f2c14e;font-style:normal}.t-c{color:#857e70}.t-f{color:#8fcbe8;font-style:normal}.t-v{color:#d4a5ff;font-style:normal}
+
+/* botões */
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:600 14px 'Bricolage Grotesque',sans-serif;border:1.5px solid var(--ink);background:transparent;color:var(--ink);padding:8px 15px;border-radius:999px;cursor:pointer;transition:transform .1s}
+.btn.p{background:var(--ink);color:var(--bg)}
+.btn.g{border-color:var(--line);color:var(--muted)}
+.btn:active{transform:scale(.96)}
+
+/* inputs demo */
+.field{display:grid;gap:4px;margin-bottom:12px}
+.field label{font:600 12.5px 'JetBrains Mono',monospace;color:var(--muted)}
+.field input{font:16px 'JetBrains Mono',monospace;padding:11px 14px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);width:100%;outline:none;transition:border-color .2s}
+.field input:focus{border-color:var(--accent)}
+.trace{font:12.5px 'JetBrains Mono',monospace;color:var(--muted);min-height:1.5em;overflow-wrap:anywhere}
+.trace s{color:var(--bad);text-decoration:none}.trace b{color:var(--ok)}
+#maskOn[aria-checked=true]::after{box-shadow:none;background:var(--ok)}
+.toggle{display:inline-flex;align-items:center;gap:10px;font:600 13px 'JetBrains Mono',monospace;color:var(--muted);margin-bottom:12px;cursor:pointer}
+
+/* mock tema */
+.mock{--bg:#ffffff;--texto:#222222;background:var(--bg);color:var(--texto);border:1.5px solid var(--line);border-radius:14px;padding:12px 14px 16px;transition:background .4s,color .4s}
+.mock.dark{--bg:#17161a;--texto:#eeeeee}
+.mock .bar{display:flex;align-items:center;gap:5px;margin-bottom:12px;font:11px 'JetBrains Mono',monospace;opacity:.55}
+.mock .bar i{width:8px;height:8px;border-radius:50%;background:currentColor;opacity:.4}
+.mock .bar span{margin-left:auto}
+.mock h4{margin:0 0 4px;font-size:20px;letter-spacing:-.02em}
+.mock p{margin:0 0 12px;opacity:.75;font-size:14.5px}
+.mock .sw{background:transparent;border-color:color-mix(in srgb,var(--texto) 25%,transparent)}
+.mock .sw::after{background:#e4572e}
+.mock .sw[aria-checked=true]::after{box-shadow:inset -6px -3px 0 0 var(--bg)}
+.read{font:12.5px/1.8 'JetBrains Mono',monospace;margin-top:10px;overflow-x:auto;white-space:nowrap}
+.read b{color:var(--accent);font-weight:600}
+
+/* cola */
+.sum{list-style:none;margin:0;padding:12px 14px;display:grid;gap:6px;background:var(--soft);border-left:3px solid var(--accent);border-radius:4px 10px 10px 4px;font-size:15.5px}
+.sum li{padding-left:22px;position:relative}
+.sum li::before{content:'→';position:absolute;left:0;color:var(--accent);font-family:'JetBrains Mono',monospace}
+
+/* prática */
+.blank{font:600 16px 'JetBrains Mono',monospace;background:transparent;color:#ffd27a;border:0;border-bottom:1.5px dashed #ffd27a;padding:0 2px;outline:none;border-radius:0;vertical-align:baseline}
+.blank.ok{color:#7be0a8;border-bottom:1.5px solid #7be0a8}
+.blank.bad{color:#ff8a80;border-bottom-color:#ff8a80}
+.fb{font-size:14.5px;margin-top:10px;min-height:1.4em}
+.fb.ok{color:var(--ok)}.fb.bad{color:var(--bad)}.fb.tip{color:var(--muted)}
+
+/* editor */
+.ed{border-radius:12px;overflow:hidden;background:var(--code)}
+.CodeMirror{height:auto;background:var(--code);color:var(--code-ink);font:13.5px/1.6 'JetBrains Mono',monospace;padding:8px 0}
+.CodeMirror textarea{font-size:16px!important}
+.CodeMirror-gutters{background:var(--code);border:0}
+.CodeMirror-linenumber{color:var(--code-muted)}
+.CodeMirror-cursor{border-left:2px solid var(--accent)!important}
+.CodeMirror-selected{background:#3a3530!important}
+.cm-s-default .cm-keyword{color:#ff9e6b}.cm-s-default .cm-string{color:#b8d97c}.cm-s-default .cm-string-2{color:#f2c14e}.cm-s-default .cm-comment{color:#857e70}.cm-s-default .cm-variable,.cm-s-default .cm-def,.cm-s-default .cm-variable-2{color:var(--code-ink)}.cm-s-default .cm-property{color:#8fcbe8}.cm-s-default .cm-number,.cm-s-default .cm-atom{color:#d4a5ff}.cm-s-default .cm-operator{color:#c9c2b3}
+.CodeMirror-matchingbracket{color:#fff!important;text-decoration:underline}
+textarea.fallback{width:100%;min-height:180px;background:var(--code);color:var(--code-ink);border:0;padding:12px;font:14px/1.6 'JetBrains Mono',monospace}
+.lbl{font:700 11px 'JetBrains Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.09em;margin:12px 0 5px;display:flex;justify-content:space-between}
+.prev{display:block;width:100%;height:110px;border:1.5px solid var(--line);border-radius:12px;background:#fff}
+.console{font:12.5px/1.6 'JetBrains Mono',monospace;background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:7px 12px;min-height:36px;max-height:104px;overflow:auto;color:var(--muted)}
+.console .e{color:var(--bad)}
+.fix{font:12.5px 'JetBrains Mono',monospace;color:var(--muted);background:var(--surface);border:1.5px dashed var(--line);border-radius:8px;padding:6px 10px;margin:0 0 8px;overflow-x:auto;white-space:pre}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;font-size:14px;color:var(--muted)}
+.chips span{border:1px solid var(--line);border-radius:99px;padding:3px 10px}
+
+/* desafios */
+.tabs{display:flex;gap:6px;align-items:center;margin:16px 0 12px}
+.tab{flex:none;width:42px;height:42px;border-radius:11px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font:700 14px 'JetBrains Mono',monospace;cursor:pointer;position:relative;transition:background .2s,color .2s}
+.tab.on{border-color:var(--ink);background:var(--ink);color:var(--bg)}
+.tab.done::after{content:'✓';position:absolute;top:-6px;right:-6px;width:17px;height:17px;border-radius:50%;background:var(--ok);color:#fff;font-size:10px;display:grid;place-items:center}
+.score{margin-left:auto;font:600 13px 'JetBrains Mono',monospace;color:var(--muted)}
+.ch h3{margin:0 0 2px;font-size:21px;letter-spacing:-.02em}
+.ch > p{margin:0 0 10px;color:var(--muted)}
+.checks{list-style:none;padding:0;margin:10px 0 0;display:grid;gap:4px;font-size:14.5px}
+.checks li{display:flex;gap:8px}
+.checks li::before{content:'·';font:700 13px 'JetBrains Mono',monospace;width:16px;color:var(--muted)}
+.checks li.ok{color:var(--ok)}.checks li.ok::before{content:'✓';color:var(--ok)}
+.checks li.bad{color:var(--bad)}.checks li.bad::before{content:'✗';color:var(--bad)}
+.actions{margin-top:10px}
+footer{max-width:780px;margin:auto;padding:24px 16px 40px;color:var(--muted);font-size:14px;border-top:1px solid var(--line)}
+</style>
+</head>
+<body>
+<script>try{var t=localStorage.getItem('revisao-tema');if(t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches)document.body.classList.add('dark')}catch(e){}</script>
+
+<header class="top">
+  <div class="in">
+    <span class="brand">js<b>·</b>revisão</span>
+    <nav>
+      <a href="#l1">01 DOM</a><a href="#l2">02 Máscaras</a><a href="#l3">03 Tema</a><a href="#l4">04 Desafios</a><a href="#l5">05 Simulado</a>
+    </nav>
+    <button class="sw" id="siteTheme" role="switch" aria-checked="false"><span class="sr">Modo escuro</span></button>
+  </div>
+  <div class="prog" id="prog"></div>
+</header>
+
+<main>
+  <section class="hero">
+    <h1>JavaScript pra prova,<br>em <em>15 minutos.</em></h1>
+    <p>Três assuntos. Para cada um: entenda, veja funcionando, leia o código linha a linha, pratique e guarde a cola.</p>
+  </section>
+
+  <!-- 01 FUNDAMENTOS -->
+  <section class="lesson" id="l1">
+    <div class="lh"><span class="n">01</span><h2>Pegar, ouvir, mudar</h2><span class="t">3 min</span></div>
+    <ol class="steps">
+      <li class="step">
+        <div class="k">Entenda</div>
+        <p class="lead">Todo JS de front-end faz 3 coisas: <b>pegar</b> um elemento do HTML, <b>ouvir</b> um evento e <b>mudar</b> algo na tela.</p>
+        <dl class="defs">
+          <dt>querySelector('#nome')</dt><dd>pega pelo seletor CSS: <code class="i">#id</code>, <code class="i">.classe</code>, <code class="i">tag</code></dd>
+          <dt>getElementById('nome')</dt><dd>pega pelo id — <b>sem</b> o #</dd>
+          <dt>addEventListener('input', fn)</dt><dd>roda a função quando o evento acontece</dd>
+          <dt>.value</dt><dd>o texto dentro de um input</dd>
+          <dt>.textContent</dt><dd>o texto de qualquer elemento (p, span, div…)</dd>
+        </dl>
+        <details><summary>Quais eventos caem na prova?</summary>
+          <div class="dd">
+            <p><code class="i">click</code> — clicou (botões)</p>
+            <p><code class="i">input</code> — a cada tecla digitada ou apagada (máscaras!)</p>
+            <p><code class="i">change</code> — quando sai do campo / troca um select</p>
+            <p><code class="i">submit</code> — enviou um formulário</p>
+          </div>
+        </details>
+      </li>
+      <li class="step">
+        <div class="k">Veja funcionando · mexa no código</div>
+        <div class="pipe" id="flow"><span>pegar</span><i>→</i><span>ouvir</span><i>→</i><span>mudar</span></div>
+        <div class="fix">HTML: &lt;input id="nome"&gt;  &lt;p id="saida"&gt;&lt;/p&gt;</div>
+        <div class="ed" id="ed1"></div>
+        <div class="lbl"><span>Resultado ao vivo — digite aqui</span></div>
+        <iframe class="prev" id="pv1" sandbox="allow-scripts" title="Resultado"></iframe>
+        <div class="lbl"><span>Console</span><button class="mini" style="color:var(--muted);border-color:var(--line)" id="clr1">limpar</button></div>
+        <div class="console" id="con1"></div>
+        <div class="chips"><span>Experimente:</span><span>troque <code>'Olá, '</code> por <code>'Oi, '</code></span><span>troque <code>'input'</code> por <code>'change'</code></span><span>apague o <code>#</code></span></div>
+      </li>
+      <li class="step">
+        <div class="k">Código linha a linha</div>
+        <div class="code" data-ex="dom"></div>
+      </li>
+      <li class="step">
+        <div class="k">Pratique · complete</div>
+        <div data-pr="dom"></div>
+      </li>
+      <li class="step">
+        <div class="k">Lembre na prova</div>
+        <ul class="sum">
+          <li><code class="i">querySelector('#id')</code> com #. <code class="i">getElementById('id')</code> sem #.</li>
+          <li>Ordem sempre: pegar → ouvir → mudar.</li>
+          <li><code class="i">input.value</code> lê e escreve o texto do campo.</li>
+          <li>Deu <code class="i">null</code>? O id está errado ou o <code class="i">&lt;script&gt;</code> está antes do HTML (coloque no fim do body).</li>
+        </ul>
+      </li>
+    </ol>
+  </section>
+
+  <!-- 02 MÁSCARAS -->
+  <section class="lesson" id="l2">
+    <div class="lh"><span class="n">02</span><h2>Máscaras de input</h2><span class="t">5 min</span></div>
+    <ol class="steps">
+      <li class="step">
+        <div class="k">Entenda</div>
+        <p class="lead">A cada tecla (<code class="i">input</code>): <b>limpa</b> tudo que não é número e <b>formata</b> de novo.</p>
+        <div class="pipe"><span>"1a2b3c4"</span><i>→</i><span class="fn">replace(/\D/g, '')</span><i>→</i><span>"1234"</span><i>→</i><span class="fn">formata</span><i>→</i><span>"123.4"</span></div>
+        <div class="rx">
+          <div><code>\d</code>um dígito 0–9</div>
+          <div><code>\D</code>NÃO dígito</div>
+          <div><code>g</code>todos, não só o 1º</div>
+          <div><code>( ) $1</code>captura e reusa</div>
+        </div>
+        <details><summary>Ler a regex em português</summary>
+          <div class="dd">
+            <p><code class="i">/(\d{3})(\d)/</code> = “3 dígitos (grupo 1) seguidos de 1 dígito (grupo 2)”.</p>
+            <p><code class="i">'$1.$2'</code> = “grupo 1, um ponto, grupo 2”. Então <code class="i">1234</code> vira <code class="i">123.4</code>.</p>
+            <p><code class="i">^</code> = começo do texto. <code class="i">$</code> = fim do texto.</p>
+          </div>
+        </details>
+      </li>
+      <li class="step">
+        <div class="k">Veja funcionando · antes e depois</div>
+        <label class="toggle"><button class="sw" id="maskOn" role="switch" aria-checked="true"><span class="sr">Máscara ligada</span></button><span id="maskLbl">máscara ligada</span></label>
+        <div class="field"><label for="dNum">só números</label><input id="dNum" inputmode="text" placeholder="tente digitar letras"><div class="trace" data-for="dNum"></div></div>
+        <div class="field"><label for="dCpf">CPF</label><input id="dCpf" inputmode="numeric" placeholder="000.000.000-00"><div class="trace" data-for="dCpf"></div></div>
+        <div class="field"><label for="dTel">telefone</label><input id="dTel" inputmode="numeric" placeholder="(00) 00000-0000"><div class="trace" data-for="dTel"></div></div>
+      </li>
+      <li class="step">
+        <div class="k">Código linha a linha</div>
+        <p>Só números é <b>uma linha</b>:</p>
+        <pre class="code" data-hl>input.value = input.value.replace(/\D/g, '');</pre>
+        <p>CPF é a mesma ideia + formatação:</p>
+        <div class="code" data-ex="cpf"></div>
+        <details><summary>E o telefone?</summary><div class="dd"><div class="code" data-ex="tel"></div></div></details>
+      </li>
+      <li class="step">
+        <div class="k">Pratique · complete</div>
+        <div data-pr="mask"></div>
+      </li>
+      <li class="step">
+        <div class="k">Lembre na prova</div>
+        <ul class="sum">
+          <li>Evento <code class="i">'input'</code> — não <code class="i">'click'</code>.</li>
+          <li><code class="i">replace(/\D/g, '')</code> = só números. <b>D maiúsculo</b>.</li>
+          <li>Sem o <code class="i">g</code>, troca só o primeiro.</li>
+          <li><code class="i">slice(0, 11)</code> limita o tamanho.</li>
+          <li>No fim, devolva: <code class="i">input.value = v</code>.</li>
+        </ul>
+      </li>
+    </ol>
+  </section>
+
+  <!-- 03 TEMA -->
+  <section class="lesson" id="l3">
+    <div class="lh"><span class="n">03</span><h2>Modo claro / escuro</h2><span class="t">4 min</span></div>
+    <ol class="steps">
+      <li class="step">
+        <div class="k">Entenda</div>
+        <p class="lead">O CSS tem as cores em <b>variáveis</b>. O JS só liga/desliga uma <b>classe</b> no body e <b>salva</b> a escolha.</p>
+        <div class="pipe"><span>clique</span><i>→</i><span class="fn">classList.toggle('dark')</span><i>→</i><span>variáveis mudam</span><i>→</i><span class="fn">localStorage.setItem</span></div>
+      </li>
+      <li class="step">
+        <div class="k">Veja funcionando</div>
+        <div class="mock" id="mock">
+          <div class="bar"><i></i><i></i><i></i><span>&lt;body&gt;</span></div>
+          <h4>Minha página</h4>
+          <p>As cores vêm de <code>var(--bg)</code> e <code>var(--texto)</code>.</p>
+          <button class="sw" id="mockSw" role="switch" aria-checked="false"><span class="sr">Tema escuro na demonstração</span></button>
+        </div>
+        <div class="read" id="mockRead"></div>
+        <p style="margin-top:10px;color:var(--muted);font-size:15px">Ligue e aperte F5: ele lembra. O botão lá no topo deste site usa o mesmo código.</p>
+      </li>
+      <li class="step">
+        <div class="k">Código linha a linha</div>
+        <div class="code" data-ex="css"></div>
+        <div class="code" data-ex="theme"></div>
+      </li>
+      <li class="step">
+        <div class="k">Pratique · complete</div>
+        <div data-pr="theme"></div>
+      </li>
+      <li class="step">
+        <div class="k">Lembre na prova</div>
+        <ul class="sum">
+          <li><code class="i">classList.toggle('dark')</code>: tem → tira, não tem → coloca.</li>
+          <li>CSS: <code class="i">body.dark { --bg: … }</code> redefine as variáveis.</li>
+          <li><code class="i">setItem('tema', valor)</code> salva, <code class="i">getItem('tema')</code> lê.</li>
+          <li>Ler o localStorage <b>ao abrir</b> a página, fora do clique.</li>
+          <li>localStorage só guarda texto: <code class="i">'dark'</code>, não <code class="i">true</code>.</li>
+        </ul>
+      </li>
+    </ol>
+  </section>
+
+  <!-- 04 DESAFIOS -->
+  <section class="lesson" id="l4">
+    <div class="lh"><span class="n">04</span><h2>5 desafios rápidos</h2><span class="t">5 min</span></div>
+    <div class="tabs" id="tabs" role="tablist"><span class="score" id="score">0/5</span></div>
+    <div class="ch">
+      <h3 id="chT"></h3>
+      <p id="chD"></p>
+      <div class="fix" id="chH"></div>
+      <div class="ed" id="ed2"></div>
+      <div class="lbl"><span>Resultado ao vivo</span></div>
+      <iframe class="prev" id="pv2" sandbox="allow-scripts" title="Resultado do desafio"></iframe>
+      <div class="row actions">
+        <button class="btn p" id="chRun">Corrigir</button>
+        <button class="btn" id="chHint">Dica</button>
+        <button class="btn g" id="chSol">Solução</button>
+        <button class="btn g" id="chReset">Recomeçar</button>
+      </div>
+      <div class="fb" id="chFb" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <!-- 05 SIMULADO -->
+  <section class="lesson" id="l5">
+    <div class="lh"><span class="n">05</span><h2>Mini simulado</h2><span class="t">3 min</span></div>
+    <div class="ch" style="margin-top:16px">
+      <p>Tudo junto, como na prova: CPF, telefone e tema salvo. Complete os comentários e clique em <b>Corrigir</b>.</p>
+      <div class="fix">HTML: &lt;input id="cpf"&gt;  &lt;input id="tel"&gt;  &lt;button id="tema"&gt;</div>
+      <div class="ed" id="ed3"></div>
+      <div class="lbl"><span>Resultado ao vivo</span></div>
+      <iframe class="prev" id="pv3" sandbox="allow-scripts" title="Resultado do simulado" style="height:150px"></iframe>
+      <div class="row actions">
+        <button class="btn p" id="smRun">Corrigir</button>
+        <button class="btn g" id="smSol">Ver solução</button>
+      </div>
+      <ul class="checks" id="smChecks" aria-live="polite"></ul>
+      <div class="fb" id="smFb"></div>
+    </div>
+  </section>
+</main>
+<footer>Revisou tudo? Refaça o simulado sem olhar a cola. Boa prova.</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
+<script>
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const G = window.gsap;
+const esc = s => s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+// mini realce de sintaxe para os blocos estáticos
+const hl = s => s.replace(/(\/\/.*$)|('[^'\n]*'|"[^"\n]*")|(\/(?![\/*\s])(?:\\.|[^\/\n])+\/g?)|\b(const|let|if|else|true|false|null)\b|([\w$]+)(?=\s*\()|(--[\w-]+)|([\s\S])/gm,
+  (m, c, s, r, k, f, v) => c ? `<i class="t-c">${esc(c)}</i>` : s ? `<i class="t-s">${esc(s)}</i>` : r ? `<i class="t-r">${esc(r)}</i>`
+    : k ? `<i class="t-k">${k}</i>` : f ? `<i class="t-f">${esc(f)}</i>` : v ? `<i class="t-v">${v}</i>` : esc(m));
+const shake = el => G && G.fromTo(el, {x: -6}, {x: 0, duration: .4, ease: 'elastic.out(1,.3)'});
+const pop = el => G && G.fromTo(el, {scale: .96}, {scale: 1, duration: .4, ease: 'back.out(3)'});
+const store = {get: k => { try { return localStorage.getItem(k) } catch (e) { return null } }, set: (k, v) => { try { localStorage.setItem(k, v) } catch (e) {} }};
+
+/* ---------- tema do site (o mesmo código ensinado) ---------- */
+const siteSw = $('#siteTheme');
+const syncSite = () => siteSw.setAttribute('aria-checked', document.body.classList.contains('dark'));
+syncSite();
+siteSw.addEventListener('click', () => {
+  document.body.classList.toggle('dark');
+  store.set('revisao-tema', document.body.classList.contains('dark') ? 'dark' : 'light');
+  syncSite();
+});
+
+/* ---------- código linha a linha ---------- */
+const EX = {
+  dom: {file: 'script.js', code: String.raw`const nome = document.querySelector('#nome');
+const saida = document.getElementById('saida');
+nome.addEventListener('input', () => {
+  saida.textContent = 'Olá, ' + nome.value;
+});`, notes: [
+    '<b>Pegar.</b> Busca o input pelo seletor CSS (# = id) e guarda na variável <code>nome</code>.',
+    '<b>Pegar.</b> Mesmo resultado, mas só aceita id — por isso <b>sem</b> o #.',
+    '<b>Ouvir.</b> Toda vez que o usuário digita ou apaga, roda a função <code>() => { }</code>.',
+    '<b>Mudar.</b> <code>nome.value</code> lê o que foi digitado; <code>textContent</code> troca o texto do parágrafo.',
+    'Fecha a função e o <code>addEventListener</code>. Esquecer isso é erro de sintaxe comum.']},
+  cpf: {file: 'cpf.js', code: String.raw`const cpf = document.querySelector('#cpf');
+cpf.addEventListener('input', () => {
+  let v = cpf.value.replace(/\D/g, '');
+  v = v.slice(0, 11);
+  v = v.replace(/(\d{3})(\d)/, '$1.$2');
+  v = v.replace(/(\d{3})(\d)/, '$1.$2');
+  v = v.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+  cpf.value = v;
+});`, notes: [
+    'Pega o input do CPF.',
+    'Roda a cada tecla digitada.',
+    'Remove tudo que NÃO é número. <code>"12a.3"</code> → <code>"123"</code>. Usamos <code>let</code> porque <code>v</code> vai mudar.',
+    'Corta em 11 dígitos, o tamanho de um CPF.',
+    'Ponto depois dos 3 primeiros: <code>1234</code> → <code>123.4</code>',
+    'Igual de novo, para os próximos 3: <code>123.4567</code> → <code>123.456.7</code>',
+    'Hífen antes dos últimos 1–2 dígitos. <code>$</code> = fim do texto: <code>123.456.78900</code> → <code>123.456.789-00</code>',
+    'Devolve o texto formatado para dentro do input.',
+    'Fecha a função.']},
+  tel: {file: 'telefone.js', code: String.raw`tel.addEventListener('input', () => {
+  let v = tel.value.replace(/\D/g, '').slice(0, 11);
+  v = v.replace(/^(\d{2})(\d)/, '($1) $2');
+  v = v.replace(/(\d{5})(\d)/, '$1-$2');
+  tel.value = v;
+});`, notes: [
+    'Mesmo evento: <code>input</code>.',
+    'Limpa e limita em uma linha só (dá pra encadear: <code>.replace().slice()</code>).',
+    '<code>^</code> = começo. Os 2 primeiros viram DDD: <code>119</code> → <code>(11) 9</code>',
+    'Hífen depois de 5 dígitos: <code>(11) 987654</code> → <code>(11) 98765-4</code>',
+    'Devolve para o input.',
+    'Fecha a função.']},
+  css: {file: 'style.css', code: String.raw`:root { --bg: #fff; --texto: #222; }
+body.dark { --bg: #111; --texto: #eee; }
+body { background: var(--bg); color: var(--texto); }`, notes: [
+    'Variáveis CSS (começam com <code>--</code>) com as cores do tema claro.',
+    'Quando o body tiver a classe <code>dark</code>, as mesmas variáveis ganham outras cores.',
+    '<code>var(--bg)</code> usa a variável. Mudou a variável → mudou a cor da página inteira.']},
+  theme: {file: 'tema.js', code: String.raw`const botao = document.getElementById('tema');
+if (localStorage.getItem('tema') === 'dark') {
+  document.body.classList.add('dark');
+}
+botao.addEventListener('click', () => {
+  document.body.classList.toggle('dark');
+  const escuro = document.body.classList.contains('dark');
+  localStorage.setItem('tema', escuro ? 'dark' : 'light');
+});`, notes: [
+    'Pega o botão pelo id.',
+    'Ao <b>abrir</b> a página: lê o que foi salvo antes.',
+    'Se era escuro, já começa escuro. <code>add</code> só coloca.',
+    'Fecha o if.',
+    'A cada clique no botão…',
+    '<code>toggle</code>: se tem a classe, tira; se não tem, coloca.',
+    '<code>contains</code> responde <code>true</code>/<code>false</code>: está escuro agora?',
+    'Salva no navegador (sobrevive ao F5). <code>escuro ? \'dark\' : \'light\'</code> = “se escuro, dark; senão, light”.',
+    'Fecha a função.']}
+};
+$$('[data-ex]').forEach(box => {
+  const ex = EX[box.dataset.ex], lines = ex.code.split('\n');
+  box.innerHTML = `<div class="hd"><span>${ex.file} · toque numa linha</span><button class="mini">mostrar tudo</button></div>
+    <ol>${lines.map((l, i) => `<li data-i="${i}"><span class="c">${hl(l) || ' '}</span><span class="x">${ex.notes[i]}</span></li>`).join('')}</ol>
+    <div class="why"><b>L1</b><span></span></div>`;
+  const why = box.querySelector('.why');
+  const pick = i => {
+    box.querySelectorAll('li').forEach(li => li.classList.toggle('on', +li.dataset.i === i));
+    why.innerHTML = `<b>L${i + 1}</b><span>${ex.notes[i]}</span>`;
+    G && G.from(why.lastChild, {opacity: 0, y: 4, duration: .25});
+  };
+  box.querySelector('ol').addEventListener('click', e => { const li = e.target.closest('li'); if (li) pick(+li.dataset.i); });
+  const btn = box.querySelector('.mini');
+  btn.addEventListener('click', () => { btn.textContent = box.classList.toggle('all') ? 'esconder' : 'mostrar tudo'; });
+  pick(0);
+});
+$$('[data-hl]').forEach(p => p.innerHTML = hl(p.textContent));
+
+/* ---------- prática: completar lacunas ---------- */
+const PR = {
+  dom: {code: String.raw`const nome = document.[[querySelector]]('#nome');
+nome.addEventListener('[[input]]', () => {
+  console.log(nome.[[value]]);
+});`, hint: 'Pegar por seletor CSS → ? · evento de cada tecla → ? · texto do input → ?'},
+  mask: {code: String.raw`tel.addEventListener('input', () => {
+  let v = tel.value.replace([[/\D/g]], '');
+  v = v.[[slice]](0, 11);
+  tel.[[value]] = v;
+});`, hint: 'Regex de “não dígito, todos” · método que corta texto · propriedade do texto do input.'},
+  theme: {code: String.raw`botao.addEventListener('[[click]]', () => {
+  document.body.classList.[[toggle]]('dark');
+  localStorage.[[setItem]]('tema', 'dark');
+});`, hint: 'Evento de botão · método que liga/desliga · método que SALVA (o que lê é getItem).'}
+};
+$$('[data-pr]').forEach(box => {
+  const pr = PR[box.dataset.pr];
+  const parts = pr.code.split(/\[\[(.+?)\]\]/);
+  box.innerHTML = `<pre class="code">${parts.map((p, i) => i % 2
+    ? `<input class="blank" data-a="${esc(p)}" size="${p.length + 1}" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="lacuna">`
+    : hl(p)).join('')}</pre>
+    <div class="row"><button class="btn p">Verificar</button><button class="btn">Dica</button><button class="btn g">Resposta</button></div>
+    <div class="fb" aria-live="polite"></div>`;
+  const [bCheck, bHint, bAns] = box.querySelectorAll('.btn'), fb = box.querySelector('.fb'), blanks = [...box.querySelectorAll('.blank')];
+  const norm = s => s.trim().replace(/^['"]|['"]$/g, '');
+  bCheck.addEventListener('click', () => {
+    let right = 0;
+    blanks.forEach(b => { const ok = norm(b.value) === b.dataset.a; b.classList.toggle('ok', ok); b.classList.toggle('bad', !ok); if (ok) right++; else shake(b); });
+    const all = right === blanks.length;
+    fb.className = 'fb ' + (all ? 'ok' : 'bad');
+    fb.textContent = all ? 'Tudo certo! Você entendeu.' : `${right}/${blanks.length} certas. Corrija as vermelhas.`;
+    if (all) pop(box.querySelector('pre'));
+  });
+  bHint.addEventListener('click', () => { fb.className = 'fb tip'; fb.textContent = 'Dica: ' + pr.hint; });
+  bAns.addEventListener('click', () => { blanks.forEach(b => { b.value = b.dataset.a; b.classList.add('ok'); b.classList.remove('bad'); }); fb.className = 'fb tip'; fb.textContent = 'Agora apague e tente de memória.'; });
+  blanks.forEach(b => b.addEventListener('keydown', e => { if (e.key === 'Enter') bCheck.click(); }));
+});
+
+/* ---------- demos de máscara ---------- */
+const onlyNum = v => v.replace(/\D/g, '');
+const MASK = {
+  dNum: onlyNum,
+  dCpf: v => onlyNum(v).slice(0, 11).replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d{1,2})$/, '$1-$2'),
+  dTel: v => onlyNum(v).slice(0, 11).replace(/^(\d{2})(\d)/, '($1) $2').replace(/(\d{5})(\d)/, '$1-$2')
+};
+let maskOn = true;
+Object.keys(MASK).forEach(id => {
+  const el = $('#' + id), tr = $(`.trace[data-for="${id}"]`);
+  el.addEventListener('input', () => {
+    const antes = el.value;
+    if (maskOn) el.value = MASK[id](antes);
+    tr.innerHTML = maskOn ? `antes <s>"${esc(antes)}"</s> → depois <b>"${esc(el.value)}"</b>` : `sem máscara: <s>"${esc(antes)}"</s> — aceita qualquer coisa`;
+  });
+});
+$('#maskOn').addEventListener('click', e => {
+  maskOn = !maskOn;
+  e.currentTarget.setAttribute('aria-checked', maskOn);
+  $('#maskLbl').textContent = maskOn ? 'máscara ligada' : 'máscara desligada';
+  Object.keys(MASK).forEach(id => $('#' + id).dispatchEvent(new Event('input')));
+});
+$('.toggle').addEventListener('click', e => { if (e.target.id !== 'maskOn' && !e.target.closest('#maskOn')) { e.preventDefault(); $('#maskOn').click(); } });
+
+/* ---------- demo tema ---------- */
+const mock = $('#mock'), mockSw = $('#mockSw');
+const showMock = () => {
+  const dark = mock.classList.contains('dark');
+  mockSw.setAttribute('aria-checked', dark);
+  $('#mockRead').innerHTML = `body.classList.contains('dark') → <b>${dark}</b><br>localStorage.getItem('tema') → <b>${store.get('demo-tema') ? `"${store.get('demo-tema')}"` : 'null'}</b><br>--bg → <b>${dark ? '#17161a' : '#ffffff'}</b>`;
+};
+if (store.get('demo-tema') === 'dark') mock.classList.add('dark');
+mockSw.addEventListener('click', () => {
+  mock.classList.toggle('dark');
+  store.set('demo-tema', mock.classList.contains('dark') ? 'dark' : 'light');
+  showMock();
+  G && G.fromTo('#mockRead b', {color: 'var(--ink)'}, {color: 'var(--accent)', duration: .5});
+});
+showMock();
+
+/* ---------- execução de código (iframe isolado) ---------- */
+const PREVIEW_CSS = ':root{--bg:#fff;--texto:#222}body.dark{--bg:#17161a;--texto:#eee}body{margin:0;padding:14px;background:var(--bg);color:var(--texto);font:15px/1.4 system-ui,sans-serif;transition:background .3s,color .3s;display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}input,button{font:inherit;padding:8px 10px;border-radius:8px;border:1px solid #bbb;font-size:16px}button{cursor:pointer;background:#e4572e;color:#fff;border:0}label{display:flex;flex-direction:column;gap:4px;font-size:13px}p{margin:0;width:100%;min-height:1.4em}';
+// localStorage falso: o iframe é isolado e não pode usar o real
+const BOOT = `const __send=(t,d)=>parent.postMessage({t,d},'*');const __mem={};
+const __ls={getItem:k=>k in __mem?__mem[k]:null,setItem:(k,v)=>{__mem[k]=String(v)},removeItem:k=>{delete __mem[k]},clear:()=>{for(const k in __mem)delete __mem[k]}};
+try{Object.defineProperty(window,'localStorage',{value:__ls,configurable:true})}catch(e){}
+console.log=(...a)=>__send('log',a.map(x=>typeof x==='object'?JSON.stringify(x):String(x)).join(' '));
+window.onerror=m=>{__send('err',String(m).replace(/^Uncaught /,''))};
+document.addEventListener('input',()=>__send('evt'),true);`;
+const HELP = `const __R=[];const __q=s=>document.querySelector(s);
+const __type=(el,v)=>{el.value=v;el.dispatchEvent(new Event('input',{bubbles:true}))};
+const __t=(n,f)=>{let r=false;try{r=!!f()}catch(e){}__R.push([n,r])};`;
+const build = (html, code, preset = '', tests = '') => `<!doctype html><meta charset="utf-8"><style>${PREVIEW_CSS}</style><body>${html}<script>${BOOT}${preset}<\/script><script>${code.replace(/<\/script/gi, '<\\/script')}<\/script>`
+  + (tests ? `<script>${HELP}${tests};__send('test',__R)<\/script>` : '');
+const frames = new Map();
+addEventListener('message', e => { const h = frames.get(e.source); if (h) h(e.data); });
+function preview(iframe, html, code, onMsg) { frames.set(iframe.contentWindow, onMsg || (() => {})); iframe.srcdoc = build(html, code); }
+function runTests(html, code, tests, preset) {
+  return new Promise(res => {
+    const f = document.createElement('iframe');
+    f.setAttribute('sandbox', 'allow-scripts'); f.hidden = true; document.body.append(f);
+    const errs = [];
+    const done = r => { clearTimeout(to); frames.delete(f.contentWindow); f.remove(); res({r, errs}); };
+    frames.set(f.contentWindow, m => { if (m.t === 'err') errs.push(m.d); if (m.t === 'test') done(m.d); });
+    const to = setTimeout(() => done(null), 3000);
+    f.srcdoc = build(html, code, preset, tests);
+  });
+}
+function makeEditor(el, value, onChange) {
+  if (window.CodeMirror) {
+    const cm = CodeMirror(el, {value, mode: 'javascript', lineNumbers: true, tabSize: 2, indentUnit: 2, autoCloseBrackets: true, viewportMargin: Infinity, lineWrapping: true});
+    if (onChange) cm.on('change', onChange);
+    return {get: () => cm.getValue(), set: v => cm.setValue(v)};
+  }
+  const ta = document.createElement('textarea'); ta.className = 'fallback'; ta.value = value; ta.spellcheck = false; el.append(ta);
+  if (onChange) ta.addEventListener('input', onChange);
+  return {get: () => ta.value, set: v => { ta.value = v; onChange && onChange(); }};
+}
+const debounce = (fn, ms = 350) => { let t; return () => { clearTimeout(t); t = setTimeout(fn, ms); }; };
+
+/* ---------- 01 editor ao vivo ---------- */
+const H1 = '<input id="nome" placeholder="Seu nome"><p id="saida"></p>';
+const con1 = $('#con1');
+const flowEls = $$('#flow span');
+const log1 = (txt, err) => { const d = document.createElement('div'); d.textContent = (err ? '✗ ' : '› ') + txt; if (err) d.className = 'e'; con1.append(d); con1.scrollTop = 1e6; };
+const ed1 = makeEditor($('#ed1'), String.raw`const nome = document.querySelector('#nome');
+const saida = document.getElementById('saida');
+
+nome.addEventListener('input', () => {
+  saida.textContent = 'Olá, ' + nome.value;
+  console.log('digitou:', nome.value);
+});`, debounce(() => run1()));
+const run1 = () => { con1.innerHTML = ''; preview($('#pv1'), H1, ed1.get(), m => {
+  if (m.t === 'log') log1(m.d);
+  if (m.t === 'err') log1(m.d, true);
+  if (m.t === 'evt' && G) G.timeline().to(flowEls, {className: 'lit', duration: .01, stagger: .12}).to(flowEls, {className: '', duration: .01, delay: .5});
+}); };
+run1();
+$('#clr1').addEventListener('click', () => con1.innerHTML = '');
+
+/* ---------- 04 desafios ---------- */
+const CH = [
+  {t: 'Só números', d: 'O campo idade deveria aceitar só números, mas está apagando os números. Corrija.',
+    html: '<input id="idade" placeholder="Idade">',
+    code: String.raw`const idade = document.querySelector('#idade');
+
+idade.addEventListener('input', () => {
+  idade.value = idade.value.replace(/\d/g, '');
+});`,
+    sol: String.raw`const idade = document.querySelector('#idade');
+
+idade.addEventListener('input', () => {
+  idade.value = idade.value.replace(/\D/g, '');
+});`,
+    test: `__t('Digitar "a1b2c3" vira "123"', () => (__type(__q('#idade'),'a1b2c3'), __q('#idade').value === '123'))`,
+    hint: '\\d (minúsculo) é dígito, então você está apagando os números. Qual letra significa NÃO dígito?'},
+  {t: 'Evento certo', d: 'A máscara de CEP (00000-000) não funciona enquanto a pessoa digita.',
+    html: '<input id="cep" placeholder="CEP">',
+    code: String.raw`const cep = document.querySelector('#cep');
+
+cep.addEventListener('click', () => {
+  let v = cep.value.replace(/\D/g, '').slice(0, 8);
+  v = v.replace(/(\d{5})(\d)/, '$1-$2');
+  cep.value = v;
+});`,
+    sol: String.raw`const cep = document.querySelector('#cep');
+
+cep.addEventListener('input', () => {
+  let v = cep.value.replace(/\D/g, '').slice(0, 8);
+  v = v.replace(/(\d{5})(\d)/, '$1-$2');
+  cep.value = v;
+});`,
+    test: `__t('Digitar "12345678" vira "12345-678"', () => (__type(__q('#cep'),'12345678'), __q('#cep').value === '12345-678'))`,
+    hint: 'O código só roda quando clica. Qual evento dispara a cada tecla?'},
+  {t: 'Seletor', d: 'Ao clicar no botão deveria aparecer "Clicou!". Há 2 erros nos seletores.',
+    html: '<button id="btn">Clique</button><p id="msg"></p>',
+    code: String.raw`const btn = document.getElementById('#btn');
+const msg = document.querySelector('msg');
+
+btn.addEventListener('click', () => {
+  msg.textContent = 'Clicou!';
+});`,
+    sol: String.raw`const btn = document.getElementById('btn');
+const msg = document.querySelector('#msg');
+
+btn.addEventListener('click', () => {
+  msg.textContent = 'Clicou!';
+});`,
+    test: `__t('Clicar mostra "Clicou!"', () => (__q('#btn').click(), __q('#msg').textContent === 'Clicou!'))`,
+    hint: 'getElementById: SEM #. querySelector: COM # para id.'},
+  {t: 'Liga / desliga', d: 'O botão escurece a página, mas nunca volta para o claro.',
+    html: '<button id="tema">Trocar tema</button><p>Clique duas vezes.</p>',
+    code: String.raw`const botao = document.getElementById('tema');
+
+botao.addEventListener('click', () => {
+  document.body.classList.add('dark');
+});`,
+    sol: String.raw`const botao = document.getElementById('tema');
+
+botao.addEventListener('click', () => {
+  document.body.classList.toggle('dark');
+});`,
+    test: `__t('1º clique: escuro', () => (__q('#tema').click(), document.body.classList.contains('dark')));
+__t('2º clique: volta ao claro', () => (__q('#tema').click(), !document.body.classList.contains('dark')))`,
+    hint: 'add só coloca. Existe um método que coloca se não tem e tira se tem.'},
+  {t: 'Lembrar o tema', d: 'Salve a escolha no localStorage com a chave "tema" ("dark" ou "light").',
+    html: '<button id="tema">Trocar tema</button><p>Tema salvo no navegador.</p>',
+    code: String.raw`const botao = document.getElementById('tema');
+
+botao.addEventListener('click', () => {
+  document.body.classList.toggle('dark');
+  const escuro = document.body.classList.contains('dark');
+  // salve aqui: 'dark' se escuro, senão 'light'
+
+});`,
+    sol: String.raw`const botao = document.getElementById('tema');
+
+botao.addEventListener('click', () => {
+  document.body.classList.toggle('dark');
+  const escuro = document.body.classList.contains('dark');
+  localStorage.setItem('tema', escuro ? 'dark' : 'light');
+});`,
+    test: `__t('Clique salva "dark"', () => (__q('#tema').click(), localStorage.getItem('tema') === 'dark'));
+__t('Clique de novo salva "light"', () => (__q('#tema').click(), localStorage.getItem('tema') === 'light'))`,
+    hint: "localStorage.setItem('tema', escuro ? 'dark' : 'light')  — chave primeiro, valor depois."}
+];
+let cur = 0;
+const codes = CH.map(c => c.code), solved = new Set();
+const tabs = $('#tabs'), chFb = $('#chFb');
+CH.forEach((c, i) => {
+  const b = document.createElement('button');
+  b.className = 'tab'; b.textContent = i + 1; b.setAttribute('role', 'tab'); b.setAttribute('aria-label', 'Desafio ' + (i + 1) + ': ' + c.t);
+  b.addEventListener('click', () => openCh(i));
+  tabs.insertBefore(b, $('#score'));
+});
+const ed2 = makeEditor($('#ed2'), codes[0], debounce(() => { codes[cur] = ed2.get(); preview($('#pv2'), CH[cur].html, codes[cur]); }));
+function openCh(i) {
+  codes[cur] = ed2.get(); cur = i;
+  $$('.tab').forEach((t, j) => { t.classList.toggle('on', j === i); t.setAttribute('aria-selected', j === i); });
+  $('#chT').textContent = `${i + 1}. ${CH[i].t}`; $('#chD').textContent = CH[i].d; $('#chH').textContent = 'HTML: ' + CH[i].html;
+  ed2.set(codes[i]); chFb.textContent = ''; chFb.className = 'fb';
+  preview($('#pv2'), CH[i].html, codes[i]);
+  G && G.from('.ch h3, .ch > p', {opacity: 0, y: 6, duration: .3, stagger: .05});
+}
+$('#chRun').addEventListener('click', async () => {
+  const c = CH[cur]; codes[cur] = ed2.get();
+  const {r, errs} = await runTests(c.html, codes[cur], c.test);
+  const pass = r && r.length && r.every(x => x[1]);
+  chFb.className = 'fb ' + (pass ? 'ok' : 'bad');
+  chFb.textContent = pass ? '✓ Correto! ' + (solved.size + (solved.has(cur) ? 0 : 1) === CH.length ? 'Todos resolvidos — vá para o simulado.' : 'Próximo desafio →')
+    : errs.length ? '✗ Erro no código: ' + errs[0] : '✗ Ainda não: ' + (r || []).filter(x => !x[1]).map(x => x[0]).join(' · ');
+  if (pass) { solved.add(cur); $$('.tab')[cur].classList.add('done'); $('#score').textContent = `${solved.size}/5`; pop($$('.tab')[cur]); }
+  else shake(chFb);
+});
+$('#chHint').addEventListener('click', () => { chFb.className = 'fb tip'; chFb.textContent = 'Dica: ' + CH[cur].hint; });
+$('#chSol').addEventListener('click', () => { ed2.set(CH[cur].sol); codes[cur] = CH[cur].sol; preview($('#pv2'), CH[cur].html, codes[cur]); chFb.className = 'fb tip'; chFb.textContent = 'Compare com o seu e entenda a diferença.'; });
+$('#chReset').addEventListener('click', () => { ed2.set(CH[cur].code); codes[cur] = CH[cur].code; preview($('#pv2'), CH[cur].html, codes[cur]); chFb.textContent = ''; });
+openCh(0);
+
+/* ---------- 05 simulado ---------- */
+const SM_HTML = '<label>CPF <input id="cpf"></label><label>Telefone <input id="tel"></label><button id="tema">Alternar tema</button>';
+const SM_START = String.raw`// 1. Pegar os elementos
+const cpf = document.querySelector('#cpf');
+const tel = document.querySelector('#tel');
+const botao = document.getElementById('tema');
+
+// 2. Máscara de CPF: 000.000.000-00
+cpf.addEventListener('input', () => {
+
+});
+
+// 3. Máscara de telefone: (00) 00000-0000
+
+
+// 4. Ao abrir: aplicar o tema salvo ('tema')
+
+
+// 5. Clique: alternar 'dark' e salvar no localStorage
+`;
+const SM_SOL = String.raw`const cpf = document.querySelector('#cpf');
+const tel = document.querySelector('#tel');
+const botao = document.getElementById('tema');
+
+cpf.addEventListener('input', () => {
+  let v = cpf.value.replace(/\D/g, '').slice(0, 11);
+  v = v.replace(/(\d{3})(\d)/, '$1.$2');
+  v = v.replace(/(\d{3})(\d)/, '$1.$2');
+  v = v.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+  cpf.value = v;
+});
+
+tel.addEventListener('input', () => {
+  let v = tel.value.replace(/\D/g, '').slice(0, 11);
+  v = v.replace(/^(\d{2})(\d)/, '($1) $2');
+  v = v.replace(/(\d{5})(\d)/, '$1-$2');
+  tel.value = v;
+});
+
+if (localStorage.getItem('tema') === 'dark') {
+  document.body.classList.add('dark');
+}
+
+botao.addEventListener('click', () => {
+  document.body.classList.toggle('dark');
+  const escuro = document.body.classList.contains('dark');
+  localStorage.setItem('tema', escuro ? 'dark' : 'light');
+});
+`;
+// o teste finge que o usuário já tinha salvo 'dark' antes de abrir a página
+const SM_TEST = `__t('Abre já escuro se "tema" salvo for "dark"', () => document.body.classList.contains('dark'));
+__t('CPF: "abc12345678900" vira "123.456.789-00"', () => (__type(__q('#cpf'),'abc12345678900'), __q('#cpf').value === '123.456.789-00'));
+__t('CPF limitado a 11 dígitos', () => (__type(__q('#cpf'),'1234567890012345'), __q('#cpf').value === '123.456.789-00'));
+__t('Telefone: "11987654321" vira "(11) 98765-4321"', () => (__type(__q('#tel'),'11987654321'), __q('#tel').value === '(11) 98765-4321'));
+__t('Clique alterna para claro e salva "light"', () => (__q('#tema').click(), !document.body.classList.contains('dark') && localStorage.getItem('tema') === 'light'));
+__t('Clique de novo: escuro e salva "dark"', () => (__q('#tema').click(), document.body.classList.contains('dark') && localStorage.getItem('tema') === 'dark'))`;
+const ed3 = makeEditor($('#ed3'), SM_START, debounce(() => preview($('#pv3'), SM_HTML, ed3.get())));
+preview($('#pv3'), SM_HTML, SM_START);
+$('#smRun').addEventListener('click', async () => {
+  const {r, errs} = await runTests(SM_HTML, ed3.get(), SM_TEST, "__mem.tema='dark';");
+  const list = $('#smChecks'), fb = $('#smFb');
+  list.innerHTML = (r || []).map(([n, ok]) => `<li class="${ok ? 'ok' : 'bad'}">${esc(n)}</li>`).join('');
+  const n = (r || []).filter(x => x[1]).length;
+  fb.className = 'fb ' + (n === 6 ? 'ok' : 'bad');
+  fb.textContent = errs.length ? 'Erro no código: ' + errs[0] : n === 6 ? '6/6 — você está pronto para a prova.' : `${n}/6. Corrija os itens em vermelho.`;
+  G && G.from('#smChecks li', {opacity: 0, x: -8, duration: .3, stagger: .06});
+});
+$('#smSol').addEventListener('click', () => { ed3.set(SM_SOL); preview($('#pv3'), SM_HTML, SM_SOL); });
+
+/* ---------- navegação, progresso e animações ---------- */
+const navA = $$('nav a');
+const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) navA.forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#' + e.target.id)); }),
+  {rootMargin: '-45% 0px -50% 0px'});
+$$('.lesson').forEach(s => io.observe(s));
+const prog = $('#prog');
+addEventListener('scroll', () => { const h = document.documentElement; prog.style.transform = `scaleX(${h.scrollTop / (h.scrollHeight - h.clientHeight || 1)})`; }, {passive: true});
+if (G && window.ScrollTrigger && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  gsap.registerPlugin(ScrollTrigger);
+  gsap.from('.hero > *', {y: 20, opacity: 0, duration: .7, stagger: .1, ease: 'power3.out'});
+  $$('.lh, .step, .ch').forEach(el => gsap.from(el, {y: 18, opacity: 0, duration: .5, ease: 'power2.out', scrollTrigger: {trigger: el, start: 'top 92%', once: true}}));
+}
+</script>
